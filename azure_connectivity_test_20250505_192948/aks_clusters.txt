@@ -1,0 +1,1 @@
+da297dc5-9739-4f6f-bc39-8522cd08de3e|myAKSResourceGroup|myAKSCluster|MC_myAKSResourceGroup_myAKSCluster_eastus|myaksclust-myaksresourcegro-da297d-0uoihiwr.hcp.eastus.azmk8s.io|unknown|kubenet

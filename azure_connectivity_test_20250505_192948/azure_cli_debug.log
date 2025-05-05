@@ -1,0 +1,455 @@
+2025-05-05 19:29:48 [DEBUG] Executing: az account show
+2025-05-05 19:29:49 [DEBUG] Raw output from Azure auth check:
+2025-05-05 19:29:49 [DEBUG] ----------------------------------------
+{
+  "environmentName": "AzureCloud",
+  "homeTenantId": "d8dd3c9f-a58e-42c4-b2a8-db9de3c80860",
+  "id": "da297dc5-9739-4f6f-bc39-8522cd08de3e",
+  "isDefault": true,
+  "managedByTenants": [],
+  "name": "Azure subscription 1",
+  "state": "Enabled",
+  "tenantDefaultDomain": "kiransahoogmail.onmicrosoft.com",
+  "tenantDisplayName": "Default Directory",
+  "tenantId": "d8dd3c9f-a58e-42c4-b2a8-db9de3c80860",
+  "user": {
+    "name": "kiransahoo@gmail.com",
+    "type": "user"
+  }
+}
+2025-05-05 19:29:49 [DEBUG] ----------------------------------------
+2025-05-05 19:29:51 [DEBUG] Executing: az account list --query "[?state=='Enabled'].{id:id,name:name}" -o json
+2025-05-05 19:29:51 [DEBUG] Raw output from Subscription discovery:
+2025-05-05 19:29:51 [DEBUG] ----------------------------------------
+[
+  {
+    "id": "da297dc5-9739-4f6f-bc39-8522cd08de3e",
+    "name": "Azure subscription 1"
+  },
+  {
+    "id": "0c2ede38-ff44-4b85-8ff7-a6c43addb095",
+    "name": "test"
+  }
+]
+2025-05-05 19:29:51 [DEBUG] ----------------------------------------
+2025-05-05 19:29:51 [DEBUG] Successfully retrieved subscription list
+2025-05-05 19:29:52 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:52 [DEBUG] Executing: az group list --query "[].name" -o tsv
+2025-05-05 19:29:52 [DEBUG] Raw output from Listing resource groups in subscription da297dc5-9739-4f6f-bc39-8522cd08de3e (TSV):
+2025-05-05 19:29:52 [DEBUG] ----------------------------------------
+test
+myAKSResourceGroup
+MC_myAKSResourceGroup_myAKSCluster_eastus
+NetworkWatcherRG
+2025-05-05 19:29:52 [DEBUG] ----------------------------------------
+2025-05-05 19:29:52 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:29:53 [DEBUG] Executing: az group list --query "[].name" -o tsv
+2025-05-05 19:29:53 [DEBUG] Raw output from Listing resource groups in subscription 0c2ede38-ff44-4b85-8ff7-a6c43addb095 (TSV):
+2025-05-05 19:29:53 [DEBUG] ----------------------------------------
+MyResourceGroup
+ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed
+ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed
+2025-05-05 19:29:53 [DEBUG] ----------------------------------------
+2025-05-05 19:29:53 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:53 [DEBUG] Executing: az vm list --resource-group "test" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:54 [DEBUG] Raw output from Listing VMs in resource group test:
+2025-05-05 19:29:54 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:54 [DEBUG] ----------------------------------------
+2025-05-05 19:29:54 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:54 [DEBUG] Executing: az vm list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:55 [DEBUG] Raw output from Listing VMs in resource group myAKSResourceGroup:
+2025-05-05 19:29:55 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:55 [DEBUG] ----------------------------------------
+2025-05-05 19:29:55 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:55 [DEBUG] Executing: az vm list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:55 [DEBUG] Raw output from Listing VMs in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:29:55 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:55 [DEBUG] ----------------------------------------
+2025-05-05 19:29:55 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:56 [DEBUG] Executing: az vm list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:56 [DEBUG] Raw output from Listing VMs in resource group NetworkWatcherRG:
+2025-05-05 19:29:56 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:56 [DEBUG] ----------------------------------------
+2025-05-05 19:29:56 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:29:56 [DEBUG] Executing: az vm list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:57 [DEBUG] Raw output from Listing VMs in resource group MyResourceGroup:
+2025-05-05 19:29:57 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:57 [DEBUG] ----------------------------------------
+2025-05-05 19:29:57 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:29:57 [DEBUG] Executing: az vm list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:58 [DEBUG] Raw output from Listing VMs in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:29:58 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:58 [DEBUG] ----------------------------------------
+2025-05-05 19:29:58 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:29:58 [DEBUG] Executing: az vm list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, privateIps:privateIps, publicIps:publicIps, vnet:virtualNetwork.name, subnet:subnet.name, osType:storageProfile.osDisk.osType}" -o json
+2025-05-05 19:29:58 [DEBUG] Raw output from Listing VMs in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:29:58 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:58 [DEBUG] ----------------------------------------
+2025-05-05 19:29:58 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:59 [DEBUG] Executing: az aks list --resource-group "test" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:29:59 [DEBUG] Raw output from Listing AKS clusters in resource group test:
+2025-05-05 19:29:59 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:29:59 [DEBUG] ----------------------------------------
+2025-05-05 19:29:59 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:29:59 [DEBUG] Executing: az aks list --resource-group "myAKSResourceGroup" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:00 [DEBUG] Raw output from Listing AKS clusters in resource group myAKSResourceGroup:
+2025-05-05 19:30:00 [DEBUG] ----------------------------------------
+[
+  {
+    "apiServerAddress": null,
+    "fqdn": "myaksclust-myaksresourcegro-da297d-0uoihiwr.hcp.eastus.azmk8s.io",
+    "name": "myAKSCluster",
+    "networkPlugin": "kubenet",
+    "nodeResourceGroup": "MC_myAKSResourceGroup_myAKSCluster_eastus"
+  }
+]
+2025-05-05 19:30:00 [DEBUG] ----------------------------------------
+2025-05-05 19:30:00 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:01 [DEBUG] Executing: az aks list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:01 [DEBUG] Raw output from Listing AKS clusters in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:01 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:01 [DEBUG] ----------------------------------------
+2025-05-05 19:30:01 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:01 [DEBUG] Executing: az aks list --resource-group "NetworkWatcherRG" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:02 [DEBUG] Raw output from Listing AKS clusters in resource group NetworkWatcherRG:
+2025-05-05 19:30:02 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:02 [DEBUG] ----------------------------------------
+2025-05-05 19:30:02 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:02 [DEBUG] Executing: az aks list --resource-group "MyResourceGroup" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:02 [DEBUG] Raw output from Listing AKS clusters in resource group MyResourceGroup:
+2025-05-05 19:30:03 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:03 [DEBUG] ----------------------------------------
+2025-05-05 19:30:03 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:03 [DEBUG] Executing: az aks list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:03 [DEBUG] Raw output from Listing AKS clusters in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:03 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:03 [DEBUG] ----------------------------------------
+2025-05-05 19:30:03 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:03 [DEBUG] Executing: az aks list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, nodeResourceGroup:nodeResourceGroup, fqdn:fqdn, apiServerAddress:apiServerAddress, networkPlugin:networkProfile.networkPlugin}" -o json
+2025-05-05 19:30:04 [DEBUG] Raw output from Listing AKS clusters in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:04 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:04 [DEBUG] ----------------------------------------
+2025-05-05 19:30:04 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:04 [DEBUG] Executing: az sql server list --resource-group "test" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:05 [DEBUG] Raw output from Listing SQL servers in resource group test:
+2025-05-05 19:30:05 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:05 [DEBUG] ----------------------------------------
+2025-05-05 19:30:05 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:05 [DEBUG] Executing: az sql server list --resource-group "myAKSResourceGroup" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:05 [DEBUG] Raw output from Listing SQL servers in resource group myAKSResourceGroup:
+2025-05-05 19:30:05 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:05 [DEBUG] ----------------------------------------
+2025-05-05 19:30:05 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:06 [DEBUG] Executing: az sql server list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:06 [DEBUG] Raw output from Listing SQL servers in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:06 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:06 [DEBUG] ----------------------------------------
+2025-05-05 19:30:06 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:06 [DEBUG] Executing: az sql server list --resource-group "NetworkWatcherRG" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:07 [DEBUG] Raw output from Listing SQL servers in resource group NetworkWatcherRG:
+2025-05-05 19:30:07 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:07 [DEBUG] ----------------------------------------
+2025-05-05 19:30:07 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:07 [DEBUG] Executing: az sql server list --resource-group "MyResourceGroup" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:08 [DEBUG] Raw output from Listing SQL servers in resource group MyResourceGroup:
+2025-05-05 19:30:08 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:08 [DEBUG] ----------------------------------------
+2025-05-05 19:30:08 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:08 [DEBUG] Executing: az sql server list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:09 [DEBUG] Raw output from Listing SQL servers in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:09 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:09 [DEBUG] ----------------------------------------
+2025-05-05 19:30:09 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:09 [DEBUG] Executing: az sql server list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, fullyQualifiedDomainName:fullyQualifiedDomainName, id:id, version:version, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:09 [DEBUG] Raw output from Listing SQL servers in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:09 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:09 [DEBUG] ----------------------------------------
+2025-05-05 19:30:09 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:10 [DEBUG] Executing: az storage account list --resource-group "test" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:10 [DEBUG] Raw output from Listing storage accounts in resource group test:
+2025-05-05 19:30:10 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:10 [DEBUG] ----------------------------------------
+2025-05-05 19:30:10 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:10 [DEBUG] Executing: az storage account list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:11 [DEBUG] Raw output from Listing storage accounts in resource group myAKSResourceGroup:
+2025-05-05 19:30:11 [DEBUG] ----------------------------------------
+[
+  {
+    "id": "/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/myAKSResourceGroup/providers/Microsoft.Storage/storageAccounts/teststorage3847",
+    "isHnsEnabled": null,
+    "location": "eastus",
+    "name": "teststorage3847",
+    "primaryEndpoints": "https://teststorage3847.blob.core.windows.net/",
+    "privateEndpointConnections": []
+  }
+]
+2025-05-05 19:30:11 [DEBUG] ----------------------------------------
+2025-05-05 19:30:11 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:11 [DEBUG] Executing: az storage account list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:12 [DEBUG] Raw output from Listing storage accounts in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:12 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:12 [DEBUG] ----------------------------------------
+2025-05-05 19:30:12 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:12 [DEBUG] Executing: az storage account list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:13 [DEBUG] Raw output from Listing storage accounts in resource group NetworkWatcherRG:
+2025-05-05 19:30:13 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:13 [DEBUG] ----------------------------------------
+2025-05-05 19:30:13 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:13 [DEBUG] Executing: az storage account list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:14 [DEBUG] Raw output from Listing storage accounts in resource group MyResourceGroup:
+2025-05-05 19:30:14 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:14 [DEBUG] ----------------------------------------
+2025-05-05 19:30:14 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:14 [DEBUG] Executing: az storage account list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:14 [DEBUG] Raw output from Listing storage accounts in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:14 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:14 [DEBUG] ----------------------------------------
+2025-05-05 19:30:14 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:15 [DEBUG] Executing: az storage account list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, location:location, primaryEndpoints:primaryEndpoints.blob, privateEndpointConnections:privateEndpointConnections, isHnsEnabled:isHnsEnabled}" -o json
+2025-05-05 19:30:15 [DEBUG] Raw output from Listing storage accounts in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:15 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:15 [DEBUG] ----------------------------------------
+2025-05-05 19:30:15 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:15 [DEBUG] Executing: az servicebus namespace list --resource-group "test" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:16 [DEBUG] Raw output from Listing Service Bus namespaces in resource group test:
+2025-05-05 19:30:16 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:16 [DEBUG] ----------------------------------------
+2025-05-05 19:30:16 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:16 [DEBUG] Executing: az servicebus namespace list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:17 [DEBUG] Raw output from Listing Service Bus namespaces in resource group myAKSResourceGroup:
+2025-05-05 19:30:17 [DEBUG] ----------------------------------------
+[
+  {
+    "id": "/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/myAKSResourceGroup/providers/Microsoft.ServiceBus/namespaces/myservicebus25430",
+    "name": "myservicebus25430",
+    "privateEndpointConnections": null,
+    "serviceBusEndpoint": "https://myservicebus25430.servicebus.windows.net:443/"
+  }
+]
+2025-05-05 19:30:17 [DEBUG] ----------------------------------------
+2025-05-05 19:30:17 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:17 [DEBUG] Executing: az servicebus namespace list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:17 [DEBUG] Raw output from Listing Service Bus namespaces in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:17 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:17 [DEBUG] ----------------------------------------
+2025-05-05 19:30:18 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:18 [DEBUG] Executing: az servicebus namespace list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:18 [DEBUG] Raw output from Listing Service Bus namespaces in resource group NetworkWatcherRG:
+2025-05-05 19:30:18 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:18 [DEBUG] ----------------------------------------
+2025-05-05 19:30:18 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:18 [DEBUG] Executing: az servicebus namespace list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:19 [DEBUG] Raw output from Listing Service Bus namespaces in resource group MyResourceGroup:
+2025-05-05 19:30:19 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:19 [DEBUG] ----------------------------------------
+2025-05-05 19:30:19 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:19 [DEBUG] Executing: az servicebus namespace list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:20 [DEBUG] Raw output from Listing Service Bus namespaces in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:20 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:20 [DEBUG] ----------------------------------------
+2025-05-05 19:30:20 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:20 [DEBUG] Executing: az servicebus namespace list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:21 [DEBUG] Raw output from Listing Service Bus namespaces in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:21 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:21 [DEBUG] ----------------------------------------
+2025-05-05 19:30:21 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:21 [DEBUG] Executing: az eventhubs namespace list --resource-group "test" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:21 [DEBUG] Raw output from Listing Event Hub namespaces in resource group test:
+2025-05-05 19:30:21 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:21 [DEBUG] ----------------------------------------
+2025-05-05 19:30:21 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:21 [DEBUG] Executing: az eventhubs namespace list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:22 [DEBUG] Raw output from Listing Event Hub namespaces in resource group myAKSResourceGroup:
+2025-05-05 19:30:22 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:22 [DEBUG] ----------------------------------------
+2025-05-05 19:30:22 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:22 [DEBUG] Executing: az eventhubs namespace list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:23 [DEBUG] Raw output from Listing Event Hub namespaces in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:23 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:23 [DEBUG] ----------------------------------------
+2025-05-05 19:30:23 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:23 [DEBUG] Executing: az eventhubs namespace list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:23 [DEBUG] Raw output from Listing Event Hub namespaces in resource group NetworkWatcherRG:
+2025-05-05 19:30:23 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:23 [DEBUG] ----------------------------------------
+2025-05-05 19:30:23 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:23 [DEBUG] Executing: az eventhubs namespace list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:24 [DEBUG] Raw output from Listing Event Hub namespaces in resource group MyResourceGroup:
+2025-05-05 19:30:24 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:24 [DEBUG] ----------------------------------------
+2025-05-05 19:30:24 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:24 [DEBUG] Executing: az eventhubs namespace list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:24 [DEBUG] Raw output from Listing Event Hub namespaces in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:24 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:24 [DEBUG] ----------------------------------------
+2025-05-05 19:30:24 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:25 [DEBUG] Executing: az eventhubs namespace list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, serviceBusEndpoint:serviceBusEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:25 [DEBUG] Raw output from Listing Event Hub namespaces in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:25 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:25 [DEBUG] ----------------------------------------
+2025-05-05 19:30:25 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:25 [DEBUG] Executing: az cosmosdb list --resource-group "test" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:26 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group test:
+2025-05-05 19:30:26 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:26 [DEBUG] ----------------------------------------
+2025-05-05 19:30:26 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:26 [DEBUG] Executing: az cosmosdb list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:26 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group myAKSResourceGroup:
+2025-05-05 19:30:26 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:26 [DEBUG] ----------------------------------------
+2025-05-05 19:30:26 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:27 [DEBUG] Executing: az cosmosdb list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:27 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:27 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:27 [DEBUG] ----------------------------------------
+2025-05-05 19:30:27 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:27 [DEBUG] Executing: az cosmosdb list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:28 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group NetworkWatcherRG:
+2025-05-05 19:30:28 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:28 [DEBUG] ----------------------------------------
+2025-05-05 19:30:28 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:28 [DEBUG] Executing: az cosmosdb list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:28 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group MyResourceGroup:
+2025-05-05 19:30:28 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:28 [DEBUG] ----------------------------------------
+2025-05-05 19:30:28 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:29 [DEBUG] Executing: az cosmosdb list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:29 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:29 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:29 [DEBUG] ----------------------------------------
+2025-05-05 19:30:29 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:29 [DEBUG] Executing: az cosmosdb list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, documentEndpoint:documentEndpoint, privateEndpointConnections:privateEndpointConnections}" -o json
+2025-05-05 19:30:30 [DEBUG] Raw output from Listing Cosmos DB accounts in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:30 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:30 [DEBUG] ----------------------------------------
+2025-05-05 19:30:30 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:30 [DEBUG] Executing: az network vnet-gateway list --resource-group "test" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:31 [DEBUG] Raw output from Listing VPN gateways in resource group test:
+2025-05-05 19:30:31 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:31 [DEBUG] ----------------------------------------
+2025-05-05 19:30:31 [DEBUG] Executing: az network express-route list --resource-group "test" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:32 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group test:
+2025-05-05 19:30:32 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:32 [DEBUG] ----------------------------------------
+2025-05-05 19:30:32 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:32 [DEBUG] Executing: az network vnet-gateway list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:33 [DEBUG] Raw output from Listing VPN gateways in resource group myAKSResourceGroup:
+2025-05-05 19:30:33 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:33 [DEBUG] ----------------------------------------
+2025-05-05 19:30:33 [DEBUG] Executing: az network express-route list --resource-group "myAKSResourceGroup" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:33 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group myAKSResourceGroup:
+2025-05-05 19:30:33 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:33 [DEBUG] ----------------------------------------
+2025-05-05 19:30:33 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:33 [DEBUG] Executing: az network vnet-gateway list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:34 [DEBUG] Raw output from Listing VPN gateways in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:34 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:34 [DEBUG] ----------------------------------------
+2025-05-05 19:30:34 [DEBUG] Executing: az network express-route list --resource-group "MC_myAKSResourceGroup_myAKSCluster_eastus" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:35 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group MC_myAKSResourceGroup_myAKSCluster_eastus:
+2025-05-05 19:30:35 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:35 [DEBUG] ----------------------------------------
+2025-05-05 19:30:35 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:35 [DEBUG] Executing: az network vnet-gateway list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:36 [DEBUG] Raw output from Listing VPN gateways in resource group NetworkWatcherRG:
+2025-05-05 19:30:36 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:36 [DEBUG] ----------------------------------------
+2025-05-05 19:30:36 [DEBUG] Executing: az network express-route list --resource-group "NetworkWatcherRG" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:36 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group NetworkWatcherRG:
+2025-05-05 19:30:36 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:36 [DEBUG] ----------------------------------------
+2025-05-05 19:30:36 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:37 [DEBUG] Executing: az network vnet-gateway list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:37 [DEBUG] Raw output from Listing VPN gateways in resource group MyResourceGroup:
+2025-05-05 19:30:37 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:37 [DEBUG] ----------------------------------------
+2025-05-05 19:30:37 [DEBUG] Executing: az network express-route list --resource-group "MyResourceGroup" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:38 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group MyResourceGroup:
+2025-05-05 19:30:38 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:38 [DEBUG] ----------------------------------------
+2025-05-05 19:30:38 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:38 [DEBUG] Executing: az network vnet-gateway list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:39 [DEBUG] Raw output from Listing VPN gateways in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:39 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:39 [DEBUG] ----------------------------------------
+2025-05-05 19:30:39 [DEBUG] Executing: az network express-route list --resource-group "ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:39 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed:
+2025-05-05 19:30:39 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:39 [DEBUG] ----------------------------------------
+2025-05-05 19:30:39 [DEBUG] Executing: az account set --subscription "0c2ede38-ff44-4b85-8ff7-a6c43addb095"
+2025-05-05 19:30:40 [DEBUG] Executing: az network vnet-gateway list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, type:gatewayType, vpnType:vpnType, bgpSettings:bgpSettings, ipConfigurations:ipConfigurations}" -o json
+2025-05-05 19:30:40 [DEBUG] Raw output from Listing VPN gateways in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:40 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:40 [DEBUG] ----------------------------------------
+2025-05-05 19:30:40 [DEBUG] Executing: az network express-route list --resource-group "ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed" --query "[].{name:name, id:id, circuitProvisioningState:circuitProvisioningState, serviceProviderProvisioningState:serviceProviderProvisioningState}" -o json
+2025-05-05 19:30:41 [DEBUG] Raw output from Listing ExpressRoute circuits in resource group ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed:
+2025-05-05 19:30:41 [DEBUG] ----------------------------------------
+[]
+2025-05-05 19:30:41 [DEBUG] ----------------------------------------
+2025-05-05 19:30:41 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:41 [DEBUG] Executing: az network watcher list --query "[].id" -o tsv
+2025-05-05 19:30:42 [DEBUG] Raw output from Listing Network Watchers:
+2025-05-05 19:30:42 [DEBUG] ----------------------------------------
+/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastus
+2025-05-05 19:30:42 [DEBUG] ----------------------------------------
+2025-05-05 19:30:42 [DEBUG] Executing: az account set --subscription "da297dc5-9739-4f6f-bc39-8522cd08de3e"
+2025-05-05 19:30:42 [DEBUG] Executing: az aks get-credentials --resource-group "myAKSResourceGroup" --name "myAKSCluster" --overwrite-existing

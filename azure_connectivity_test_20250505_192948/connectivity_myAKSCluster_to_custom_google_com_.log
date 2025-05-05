@@ -1,0 +1,36 @@
+CONNECTIVITY TEST: AKS:myAKSCluster to Custom:google.com
+DNS LOOKUP:
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+Server:		10.0.0.10
+Address:	10.0.0.10#53
+
+Non-authoritative answer:
+Name:	google.com
+Address: 142.251.16.101
+Name:	google.com
+Address: 142.251.16.138
+Name:	google.com
+Address: 142.251.16.113
+Name:	google.com
+Address: 142.251.16.139
+Name:	google.com
+Address: 142.251.16.100
+Name:	google.com
+Address: 142.251.16.102
+Name:	google.com
+Address: 2607:f8b0:4004:c08::8b
+Name:	google.com
+Address: 2607:f8b0:4004:c08::65
+Name:	google.com
+Address: 2607:f8b0:4004:c08::71
+Name:	google.com
+Address: 2607:f8b0:4004:c08::8a
+
+CURL TIMING:
+DNS Resolution: 0.003921s
+TCP Connection: 0.006802s
+TLS Handshake: 0.070490s
+Total time: 0.168466s

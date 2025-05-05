@@ -1,0 +1,8 @@
+[
+  {
+    "id": "/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/myAKSResourceGroup/providers/Microsoft.ServiceBus/namespaces/myservicebus25430",
+    "name": "myservicebus25430",
+    "privateEndpointConnections": null,
+    "serviceBusEndpoint": "https://myservicebus25430.servicebus.windows.net:443/"
+  }
+]

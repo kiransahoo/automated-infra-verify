@@ -1,40 +1,3 @@
-#!/bin/bash
-
-# Function to generate a comprehensive HTML report with embedded D3.js visualization data
-generate_report() {
-    log "Generating  report..."
-    
-    # Create output directory if it doesn't exist
-    mkdir -p "$(dirname "$REPORT_FILE")"
-    
-    # Calculate summary counts
-    if [ -f "$SUMMARY_FILE" ]; then
-        TOTAL_TESTS=$(grep -v "^$" "$SUMMARY_FILE" | wc -l)
-        PASSED_TESTS=$(grep -c " - SUCCESS" "$SUMMARY_FILE")
-        FAILED_TESTS=$(grep -c " - FAILED" "$SUMMARY_FILE")
-        PARTIAL_TESTS=$(grep -c " - PARTIAL" "$SUMMARY_FILE")
-        WARNING_TESTS=$(grep -c " - WARNING" "$SUMMARY_FILE")
-        NOT_AVAILABLE_TESTS=$(grep -c " - NOT AVAILABLE" "$SUMMARY_FILE")
-        
-        # Add partial and not available tests to skipped count
-        SKIPPED_TESTS=$((PARTIAL_TESTS + WARNING_TESTS + NOT_AVAILABLE_TESTS))
-    else
-        TOTAL_TESTS=0
-        PASSED_TESTS=0
-        FAILED_TESTS=0
-        SKIPPED_TESTS=0
-    fi
-    
-    # Extract successful connections to a temporary file
-    SUCCESSFUL_CONNECTIONS="${OUTPUT_DIR}/successful_connections.txt"
-    if [ -f "$SUMMARY_FILE" ]; then
-        grep " - SUCCESS" "$SUMMARY_FILE" | grep -v "NOT AVAILABLE" > "$SUCCESSFUL_CONNECTIONS" 2>/dev/null || echo "" > "$SUCCESSFUL_CONNECTIONS"
-    else
-        echo "" > "$SUCCESSFUL_CONNECTIONS"
-    fi
-    
-    # Start building the HTML report
-    cat > "$REPORT_FILE" << EOF
 <!DOCTYPE html>
 <html>
 <head>
@@ -195,7 +158,7 @@ generate_report() {
 </head>
 <body>
     <h1>Azure Infrastructure Readiness Test Report</h1>
-    <p>Generated on: $(date)</p>
+    <p>Generated on: Mon May  5 19:31:29 EDT 2025</p>
     
     <div class="summary-card">
         <h2>Summary</h2>
@@ -207,10 +170,10 @@ generate_report() {
                 <th>Skipped/Partial</th>
             </tr>
             <tr>
-                <td class="big-number">$TOTAL_TESTS</td>
-                <td class="big-number success">$PASSED_TESTS</td>
-                <td class="big-number error">$FAILED_TESTS</td>
-                <td class="big-number warning">$SKIPPED_TESTS</td>
+                <td class="big-number">       1</td>
+                <td class="big-number success">1</td>
+                <td class="big-number error">0</td>
+                <td class="big-number warning">0</td>
             </tr>
         </table>
     </div>
@@ -284,162 +247,29 @@ generate_report() {
             
             // Process nodes and connections
             debug("Starting visualization...");
-EOF
-
-    # Process the connectivity data and embed directly in the JavaScript
-    
-    # First, create a unique list of nodes
-    NODES_FILE="${OUTPUT_DIR}/unique_nodes.txt"
-    awk -F' to | - ' '{print $1}' "$SUCCESSFUL_CONNECTIONS" > "${NODES_FILE}.src" 2>/dev/null || true
-    awk -F' to | - ' '{print $2}' "$SUCCESSFUL_CONNECTIONS" > "${NODES_FILE}.dst" 2>/dev/null || true
-    sort -u "${NODES_FILE}.src" "${NODES_FILE}.dst" > "$NODES_FILE" 2>/dev/null || touch "$NODES_FILE"
-    
-    # Add node information directly to the JavaScript
-    NODE_COUNT=0
-    NODE_MAP="${OUTPUT_DIR}/node_map.txt"
-    > "$NODE_MAP"
-    
-    # Start the nodes array
-    echo "            // Nodes" >> "$REPORT_FILE"
-    
-    FIRST_NODE=true
-    while IFS= read -r node || [ -n "$node" ]; do
-        # Skip empty lines
-        [ -z "$node" ] && continue
-        
-        # Determine node type and color
-        TYPE="Other"
-        COLOR="#777777"
-        
-        if [[ "$node" == AKS:* ]]; then
-            TYPE="AKS"
-            COLOR="#0078D4"
-        elif [[ "$node" == VM:* ]]; then
-            TYPE="VM" 
-            COLOR="#773AAB"
-        elif [[ "$node" == SQL:* ]]; then
-            TYPE="SQL"
-            COLOR="#0072C6"
-        elif [[ "$node" == Storage:* ]]; then
-            TYPE="Storage"
-            COLOR="#FFB900"
-        elif [[ "$node" == ServiceBus:* ]]; then
-            TYPE="ServiceBus"
-            COLOR="#00BCF2"
-        elif [[ "$node" == EventHub:* ]]; then
-            TYPE="EventHub"
-            COLOR="#EB3C00"
-        elif [[ "$node" == CosmosDB:* ]]; then
-            TYPE="CosmosDB"
-            COLOR="#3999C6"
-        elif [[ "$node" == OnPrem:* ]]; then
-            TYPE="OnPrem"
-            COLOR="#107C10"
-        
-        elif [[ "$node" == Custom:* ]]; then
-            TYPE="Custom"
-            COLOR="#E74C3C"
-        fi
-        # Handle commas between nodes
-        if [ "$FIRST_NODE" = true ]; then
-            FIRST_NODE=false
-        else
-            echo "," >> "$REPORT_FILE"
-        fi
-        
-        # Escape special characters for JavaScript
-        NODE_ESCAPED=$(echo "$node" | sed 's/\\/\\\\/g; s/"/\\"/g; s/'"'"'/\\'"'"'/g')
-        
-        # Add node entry directly to JavaScript
-        cat >> "$REPORT_FILE" << EOF
+            // Nodes
             graphData.nodes.push({
-                id: $NODE_COUNT,
-                name: "$NODE_ESCAPED",
-                type: "$TYPE",
-                color: "$COLOR"
+                id: 0,
+                name: "AKS:myAKSCluster",
+                type: "AKS",
+                color: "#0078D4"
             })
-EOF
-        
-        # Save node mapping for links
-        echo "$node|$NODE_COUNT" >> "$NODE_MAP"
-        
-        NODE_COUNT=$((NODE_COUNT + 1))
-    done < "$NODES_FILE"
-    
-    # Add links directly to JavaScript
-    echo "            // Links" >> "$REPORT_FILE"
-    
-    FIRST_LINK=true
-    while IFS= read -r line || [ -n "$line" ]; do
-        # Skip empty lines
-        [ -z "$line" ] && continue
-        
-        if [[ "$line" == *" to "*" - SUCCESS"* ]]; then
-            # Extract source, destination and connection time
-            SRC=$(echo "$line" | awk -F' to ' '{print $1}')
-            DST=$(echo "$line" | awk -F' to | - ' '{print $2}')
-            
-            # Get source and destination IDs
-            SRC_ID=$(grep "^$SRC|" "$NODE_MAP" | cut -d'|' -f2)
-            DST_ID=$(grep "^$DST|" "$NODE_MAP" | cut -d'|' -f2)
-            
-            # Skip if source or destination not found
-            [ -z "$SRC_ID" ] || [ -z "$DST_ID" ] && continue
-            
-            # Extract connection time
-            CONN_TIME=""
-            VALUE="1"
-            
-            if [[ "$line" == *"Connection: "* ]]; then
-                CONN_TIME=$(echo "$line" | grep -o 'Connection: [0-9.]*s' | sed 's/Connection: //')
-                # Value reflects connection speed (faster = thicker line)
-                TIME_VALUE=$(echo "$CONN_TIME" | grep -o '[0-9.]*' || echo "1")
-                if [ -n "$TIME_VALUE" ] && [ "$TIME_VALUE" != "0" ]; then
-                    VALUE=$(echo "scale=2; 5 / $TIME_VALUE" | bc 2>/dev/null || echo "1")
-                    # Ensure value is between 1 and 5
-                    VALUE=$(echo "$VALUE < 1 ? 1 : ($VALUE > 5 ? 5 : $VALUE)" | bc 2>/dev/null || echo "1")
-                fi
-            elif [[ "$line" == *"Connection Time: "* ]]; then
-                CONN_TIME=$(echo "$line" | grep -o 'Connection Time: [0-9.]*s' | sed 's/Connection Time: //')
-                # Value reflects connection speed (faster = thicker line)
-                TIME_VALUE=$(echo "$CONN_TIME" | grep -o '[0-9.]*' || echo "1")
-                if [ -n "$TIME_VALUE" ] && [ "$TIME_VALUE" != "0" ]; then
-                    VALUE=$(echo "scale=2; 5 / $TIME_VALUE" | bc 2>/dev/null || echo "1")
-                    # Ensure value is between 1 and 5
-                    VALUE=$(echo "$VALUE < 1 ? 1 : ($VALUE > 5 ? 5 : $VALUE)" | bc 2>/dev/null || echo "1")
-                fi
-            elif [[ "$line" == *"reachable (Avg: "* ]]; then
-                CONN_TIME=$(echo "$line" | grep -o 'Avg: [0-9]\+ms' | head -1)
-                # Value reflects connection speed (faster = thicker line)
-                TIME_VALUE=$(echo "$CONN_TIME" | grep -o '[0-9]\+' || echo "1")
-                if [ -n "$TIME_VALUE" ] && [ "$TIME_VALUE" != "0" ]; then
-                    VALUE=$(echo "scale=2; 5 / $TIME_VALUE" | bc 2>/dev/null || echo "1")
-                    # Ensure value is between 1 and 5
-                    VALUE=$(echo "$VALUE < 1 ? 1 : ($VALUE > 5 ? 5 : $VALUE)" | bc 2>/dev/null || echo "1")
-                fi
-            fi
-            
-            # Escape special characters for JavaScript
-            SRC_ESCAPED=$(echo "$SRC" | sed 's/\\/\\\\/g; s/"/\\"/g; s/'"'"'/\\'"'"'/g')
-            DST_ESCAPED=$(echo "$DST" | sed 's/\\/\\\\/g; s/"/\\"/g; s/'"'"'/\\'"'"'/g')
-            CONN_TIME_ESCAPED=$(echo "$CONN_TIME" | sed 's/\\/\\\\/g; s/"/\\"/g; s/'"'"'/\\'"'"'/g')
-            
-            # Add link entry directly to JavaScript
-            cat >> "$REPORT_FILE" << EOF
+,
+            graphData.nodes.push({
+                id: 1,
+                name: "Custom:google.com",
+                type: "Custom",
+                color: "#E74C3C"
+            })
+            // Links
             graphData.links.push({
-                source: $SRC_ID,
-                target: $DST_ID,
-                sourceName: "$SRC_ESCAPED",
-                targetName: "$DST_ESCAPED",
-                value: $VALUE,
-                time: "$CONN_TIME_ESCAPED"
+                source: 0,
+                target: 1,
+                sourceName: "AKS:myAKSCluster",
+                targetName: "Custom:google.com",
+                value: 1,
+                time: "0.006802s"
             })
-EOF
-        fi
-    done < "$SUCCESSFUL_CONNECTIONS"
-    
-    # Continue with the rest of the JavaScript for visualization
-    cat >> "$REPORT_FILE" << 'EOF'
             
             debug("Graph data loaded: " + graphData.nodes.length + " nodes, " + graphData.links.length + " links");
             
@@ -896,10 +726,6 @@ EOF
         }
     });
     </script>
-EOF
-    
-    # Add discovered resources table
-    cat >> "$REPORT_FILE" << EOF
     
     <h2>Discovered Resources</h2>
     <table>
@@ -907,34 +733,16 @@ EOF
             <th>Resource Type</th>
             <th>Count</th>
         </tr>
-EOF
-    
-    # Add resource counts
-    for resource_file in "${OUTPUT_DIR}/vms.txt" "${OUTPUT_DIR}/aks_clusters.txt" "${OUTPUT_DIR}/sql_servers.txt" \
-                         "${OUTPUT_DIR}/storage_accounts.txt" "${OUTPUT_DIR}/servicebus.txt" "${OUTPUT_DIR}/eventhub.txt" \
-                         "${OUTPUT_DIR}/cosmosdb.txt" "${OUTPUT_DIR}/onprem_networks.txt" "${OUTPUT_DIR}/gateways.txt" "${OUTPUT_DIR}/custom_endpoints.txt"; do
-        resource_name=""
-        case "$resource_file" in
-            *vms.txt) resource_name="Virtual Machines" ;;
-            *aks_clusters.txt) resource_name="AKS Clusters" ;;
-            *sql_servers.txt) resource_name="SQL Servers" ;;
-            *storage_accounts.txt) resource_name="Storage Accounts" ;;
-            *servicebus.txt) resource_name="Service Bus Namespaces" ;;
-            *eventhub.txt) resource_name="Event Hub Namespaces" ;;
-            *cosmosdb.txt) resource_name="Cosmos DB Accounts" ;;
-            *onprem_networks.txt) resource_name="On-premises Networks" ;;
-            *gateways.txt) resource_name="VPN Gateways and ExpressRoute Circuits" ;;
-            *custom_endpoints.txt) resource_name="Custom Endpoints" ;;
-        esac
-        
-        if [ -n "$resource_name" ] && [ -f "$resource_file" ]; then
-            count=$(grep -v "^$" "$resource_file" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
-            echo "        <tr><td>$resource_name</td><td>$count</td></tr>" >> "$REPORT_FILE"
-        fi
-    done
-    
-    # Add test results table and close HTML
-    cat >> "$REPORT_FILE" << EOF
+        <tr><td>Virtual Machines</td><td>0</td></tr>
+        <tr><td>AKS Clusters</td><td>1</td></tr>
+        <tr><td>SQL Servers</td><td>0</td></tr>
+        <tr><td>Storage Accounts</td><td>1</td></tr>
+        <tr><td>Service Bus Namespaces</td><td>1</td></tr>
+        <tr><td>Event Hub Namespaces</td><td>0</td></tr>
+        <tr><td>Cosmos DB Accounts</td><td>0</td></tr>
+        <tr><td>On-premises Networks</td><td>0</td></tr>
+        <tr><td>VPN Gateways and ExpressRoute Circuits</td><td>0</td></tr>
+        <tr><td>Custom Endpoints</td><td>1</td></tr>
     </table>
     
     <h2>Connectivity Test Results</h2>
@@ -945,79 +753,12 @@ EOF
             <th>Status</th>
             <th>Details</th>
         </tr>
-EOF
-    
-    # Add connectivity test results
-    if [ -f "$SUMMARY_FILE" ]; then
-        while IFS= read -r line || [ -n "$line" ]; do
-            # Skip empty lines
-            [ -z "$line" ] && continue
-            
-            # Process connectivity test results
-            if [[ "$line" == *" to "*" - "* ]]; then
-                # Extract source, destination, status, and details
-                src_dest="${line%% - *}"
-                if [[ "$src_dest" == *" to "* ]]; then
-                    source="${src_dest%% to *}"
-                    dest="${src_dest#* to }"
-                    status_details="${line#*- }"
-                    
-                    # Determine status and CSS class
-                    if [[ "$status_details" == "SUCCESS"* ]]; then
-                        status="SUCCESS"
-                        css_class="success"
-                        details="${status_details#SUCCESS}"
-                        # Clean up details
-                        details="${details#* - }"
-                    elif [[ "$status_details" == "FAILED"* ]]; then
-                        status="FAILED"
-                        css_class="error"
-                        details="${status_details#FAILED}"
-                        # Clean up details
-                        details="${details#* - }"
-                    elif [[ "$status_details" == "PARTIAL"* ]]; then
-                        status="PARTIAL"
-                        css_class="partial"
-                        details="${status_details#PARTIAL}"
-                        # Clean up details
-                        details="${details#* - }"
-                    elif [[ "$status_details" == "NOT AVAILABLE"* ]]; then
-                        status="NOT AVAILABLE"
-                        css_class="warning"
-                        details="${status_details#NOT AVAILABLE}"
-                        # Clean up details
-                        details="${details#* - }"
-                    else
-                        status="WARNING"
-                        css_class="warning"
-                        details="$status_details"
-                    fi
-                    
-                    # Escape HTML special characters
-                    source=$(echo "$source" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
-                    dest=$(echo "$dest" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
-                    details=$(echo "$details" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
-                    
-                    # Add table row
-                    echo "        <tr><td>$source</td><td>$dest</td><td class=\"$css_class\">$status</td><td>$details</td></tr>" >> "$REPORT_FILE"
-                fi
-            else
-                # Handle lines that don't match expected format
-                line_escaped=$(echo "$line" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
-                echo "        <tr><td colspan=\"4\">$line_escaped</td></tr>" >> "$REPORT_FILE"
-            fi
-        done < "$SUMMARY_FILE"
-    else
-        echo "        <tr><td colspan=\"4\">No test results found. Check $SUMMARY_FILE file.</td></tr>" >> "$REPORT_FILE"
-    fi
-    
-    # Close HTML document
-    cat >> "$REPORT_FILE" << EOF
+        <tr><td>AKS:myAKSCluster</td><td>Custom:google.com</td><td class="success">SUCCESS</td><td>Connection: 0.006802s, Total: 0.168466s</td></tr>
     </table>
     
     <div class="note">
-        <p>Full logs and details can be found in: <code>$OUTPUT_DIR</code></p>
-        <p>To view this report in a browser, open: <code>$REPORT_FILE</code></p>
+        <p>Full logs and details can be found in: <code>azure_connectivity_test_20250505_192948</code></p>
+        <p>To view this report in a browser, open: <code>azure_connectivity_test_20250505_192948/connectivity_report.html</code></p>
     </div>
     
     <script>
@@ -1029,19 +770,3 @@ EOF
     </script>
 </body>
 </html>
-EOF
-    
-    # Clean up temporary files
-    rm -f "$SUCCESSFUL_CONNECTIONS" "$NODES_FILE" "${NODES_FILE}.src" "${NODES_FILE}.dst" "$NODE_MAP"
-    
-    log_success "Report generated: $REPORT_FILE"
-    
-    # Try to open the report in a browser
-    if command -v xdg-open >/dev/null 2>&1; then
-        xdg-open "$REPORT_FILE" >/dev/null 2>&1 &
-    elif command -v open >/dev/null 2>&1; then
-        open "$REPORT_FILE" >/dev/null 2>&1 &
-    else
-        log "Please open the report manually: $REPORT_FILE"
-    fi
-}
