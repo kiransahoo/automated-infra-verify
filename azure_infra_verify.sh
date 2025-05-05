@@ -231,6 +231,18 @@ run_tests_from_excel() {
             
             log "Running test: $test_id - $source to $destination"
             
+            EXECUTED_TESTS_FILE="${OUTPUT_DIR}/executed_tests.txt"
+            touch "$EXECUTED_TESTS_FILE"
+
+            # Before executing a test, check if it's already been done
+            test_key="${source_type}:${source} to ${destination_type}:${destination}"
+            if grep -q "^$test_key$" "$EXECUTED_TESTS_FILE"; then
+                log "Skipping duplicate test: $test_key (already executed)"
+                continue
+            fi
+
+            # When executing a test, add it to the tracking file
+            echo "$test_key" >> "$EXECUTED_TESTS_FILE"
             # Determine source type if auto, all or blank
             if [[ "$source_type" == "auto" || "$source_type" == "all" || -z "$source_type" ]]; then
                 # If source is "all" or blank, we need to test all AKS clusters and VMs
