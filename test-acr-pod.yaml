@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: acr-test
+spec:
+  containers:
+  - name: acr-test
+    image: netsentry.azurecr.io/your-image:tag  # Replace with an actual image from your registry
+  restartPolicy: Never

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netsentry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netsentry
+  template:
+    metadata:
+      labels:
+        app: netsentry
+    spec:
+      containers:
+      - name: netsentry
+        image: netsentry.azurecr.io/netsentry:latest
+      imagePullSecrets:
+      - name: acr-auth
