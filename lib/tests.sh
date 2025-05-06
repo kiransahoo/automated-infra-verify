@@ -387,43 +387,156 @@ test_vm_to_onprem_connectivity() {
 }
 
 # Function to test custom endpoint connectivity
+# test_custom_endpoint_connectivity() {
+#     log "Testing connectivity to custom endpoints..."
+    
+#     if [ ${#CUSTOM_ENDPOINTS[@]} -eq 0 ]; then
+#         log_warning "No custom endpoints specified, skipping custom endpoint connectivity tests."
+#         return
+#     fi
+    
+#     # Use VMs as source resources
+#     if [ -s "${OUTPUT_DIR}/vms.txt" ]; then
+#         # Limit to first 3 VMs
+#         head -3 "${OUTPUT_DIR}/vms.txt" > "${OUTPUT_DIR}/vm_custom_sample.txt"
+        
+#         while IFS='|' read -r vm_sub vm_rg vm_name vm_id vm_private_ips vm_public_ips vm_vnet vm_subnet vm_os_type; do
+#             # Skip if VM ID is missing
+#             [ -z "$vm_id" ] && continue
+            
+#             # For each custom endpoint
+#             for custom_endpoint in "${CUSTOM_ENDPOINTS[@]}"; do
+#                 # Parse endpoint components
+#                 IFS=':' read -r endpoint_host endpoint_port endpoint_desc endpoint_rg endpoint_sub <<< "$custom_endpoint"
+                
+#                 # Skip if host or port is missing
+#                 [ -z "$endpoint_host" ] || [ -z "$endpoint_port" ] && continue
+                
+#                 # Set default description if not provided
+#                 [ -z "$endpoint_desc" ] && endpoint_desc="$endpoint_host"
+                
+#                 # Test connectivity
+#                 test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
+#             done
+#         done < "${OUTPUT_DIR}/vm_custom_sample.txt"
+#     else
+#         log_warning "No VMs found to use as source for custom endpoint tests."
+#     fi
+# }
+
+# Function to test custom endpoint connectivity
 test_custom_endpoint_connectivity() {
     log "Testing connectivity to custom endpoints..."
     
-    if [ ${#CUSTOM_ENDPOINTS[@]} -eq 0 ]; then
+    # Check if we have any custom endpoints to test
+    if [ ${#CUSTOM_ENDPOINTS[@]} -eq 0 ] && [ ! -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
         log_warning "No custom endpoints specified, skipping custom endpoint connectivity tests."
         return
     fi
     
     # Use VMs as source resources
     if [ -s "${OUTPUT_DIR}/vms.txt" ]; then
-        # Limit to first 3 VMs
-        head -3 "${OUTPUT_DIR}/vms.txt" > "${OUTPUT_DIR}/vm_custom_sample.txt"
+        # Create a sample of VMs to test
+        if [[ "$source" == "all" ]]; then
+            # If testing all VMs, limit to first 3
+            head -3 "${OUTPUT_DIR}/vms.txt" > "${OUTPUT_DIR}/vm_custom_sample.txt"
+        else
+            # If a specific VM was requested, only use that one
+            grep "|${source}|" "${OUTPUT_DIR}/vms.txt" > "${OUTPUT_DIR}/vm_custom_sample.txt"
+            
+            # If the grep failed, log a warning and return
+            if [ ! -s "${OUTPUT_DIR}/vm_custom_sample.txt" ]; then
+                log_warning "Specified VM '$source' not found. Skipping custom endpoint connectivity tests."
+                return
+            fi
+        fi
+        
+        # Initialize executed tests file if it doesn't exist
+        EXECUTED_TESTS_FILE="${OUTPUT_DIR}/executed_tests.txt"
+        touch "$EXECUTED_TESTS_FILE"
         
         while IFS='|' read -r vm_sub vm_rg vm_name vm_id vm_private_ips vm_public_ips vm_vnet vm_subnet vm_os_type; do
             # Skip if VM ID is missing
             [ -z "$vm_id" ] && continue
             
-            # For each custom endpoint
-            for custom_endpoint in "${CUSTOM_ENDPOINTS[@]}"; do
-                # Parse endpoint components
-                IFS=':' read -r endpoint_host endpoint_port endpoint_desc endpoint_rg endpoint_sub <<< "$custom_endpoint"
+            # Check if a specific destination was requested
+            if [[ "$destination" != "all" && "$destination" == *":"* ]]; then
+                # Parse the specific destination
+                host=$(echo "$destination" | cut -d ':' -f1)
+                port=$(echo "$destination" | cut -d ':' -f2)
+                desc=$(echo "$destination" | cut -d ':' -f3 || echo "$host")
                 
-                # Skip if host or port is missing
-                [ -z "$endpoint_host" ] || [ -z "$endpoint_port" ] && continue
+                # Create unique test ID for deduplication
+                test_id="VM:${vm_name}_to_Custom:${host}:${port}"
                 
-                # Set default description if not provided
-                [ -z "$endpoint_desc" ] && endpoint_desc="$endpoint_host"
+                # Check if this test has already been executed
+                if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                    # Mark as executed
+                    echo "$test_id" >> "$EXECUTED_TESTS_FILE"
+                    
+                    # Test only the specific endpoint
+                    log "Testing specific endpoint: $host:$port from VM: $vm_name"
+                    test_connectivity "$vm_id" "$host" "$port" "Tcp" "VM:$vm_name" "Custom:$desc" "${vm_name}_to_${desc}"
+                else
+                    log "Skipping duplicate test: $test_id"
+                fi
+            else
+                # For "all" destination - test all endpoints in CUSTOM_ENDPOINTS array
+                for custom_endpoint in "${CUSTOM_ENDPOINTS[@]}"; do
+                    # Parse endpoint components
+                    IFS=':' read -r endpoint_host endpoint_port endpoint_desc endpoint_rg endpoint_sub <<< "$custom_endpoint"
+                    
+                    # Skip if host or port is missing
+                    [ -z "$endpoint_host" ] || [ -z "$endpoint_port" ] && continue
+                    
+                    # Set default description if not provided
+                    [ -z "$endpoint_desc" ] && endpoint_desc="$endpoint_host"
+                    
+                    # Create unique test ID for deduplication
+                    test_id="VM:${vm_name}_to_Custom:${endpoint_host}:${endpoint_port}"
+                    
+                    # Check if this test has already been executed
+                    if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                        # Mark as executed
+                        echo "$test_id" >> "$EXECUTED_TESTS_FILE"
+                        
+                        # Test connectivity
+                        test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
+                    else
+                        log "Skipping duplicate test: $test_id"
+                    fi
+                done
                 
-                # Test connectivity
-                test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
-            done
+                # Also check custom_endpoints.txt file if it exists
+                if [ -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
+                    while IFS=':' read -r endpoint_host endpoint_port endpoint_desc rest; do
+                        # Skip if host or port is missing
+                        [ -z "$endpoint_host" ] || [ -z "$endpoint_port" ] && continue
+                        
+                        # Set default description if not provided
+                        [ -z "$endpoint_desc" ] && endpoint_desc="$endpoint_host"
+                        
+                        # Create unique test ID for deduplication
+                        test_id="VM:${vm_name}_to_Custom:${endpoint_host}:${endpoint_port}"
+                        
+                        # Check if this test has already been executed
+                        if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                            # Mark as executed
+                            echo "$test_id" >> "$EXECUTED_TESTS_FILE"
+                            
+                            # Test connectivity
+                            test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
+                        else
+                            log "Skipping duplicate test: $test_id"
+                        fi
+                    done < "${OUTPUT_DIR}/custom_endpoints.txt"
+                fi
+            fi
         done < "${OUTPUT_DIR}/vm_custom_sample.txt"
     else
         log_warning "No VMs found to use as source for custom endpoint tests."
     fi
 }
-
 test_aks_to_sql_connectivity() {
     log "Testing AKS to SQL Server connectivity..."
     
