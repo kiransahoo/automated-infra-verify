@@ -442,7 +442,7 @@ test_custom_endpoint_connectivity() {
                     
                     # Test only the specific endpoint
                     log "Testing specific endpoint: $host:$port from VM: $vm_name"
-                    test_connectivity "$vm_id" "$host" "$port" "Tcp" "VM:$vm_name" "Custom:$desc" "${vm_name}_to_${desc}"
+                    test_connectivity "$vm_id" "$host" "$port" "Tcp" "VM:$vm_name" "Custom:$endpoint_host" "${vm_name}_to_${desc}"
                 else
                     log "Skipping duplicate test: $test_id"
                 fi

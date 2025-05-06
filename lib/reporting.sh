@@ -558,9 +558,15 @@ EOF
                     .attr('fill', '#fff')
                     .attr('pointer-events', 'none')
                     .text(d => {
-                        // Extract name after colon
                         const parts = d.name.split(':');
-                        return parts.length > 1 ? parts[1] : d.name;
+                        if (parts.length > 1) {
+                            // For Custom endpoints, show the actual hostname/IP
+                            if (parts[0] === "Custom") {
+                                return parts[1];
+                            }
+                            return parts[1];
+                        }
+                        return d.name;
                     });
                     
                 // Add hover functionality
