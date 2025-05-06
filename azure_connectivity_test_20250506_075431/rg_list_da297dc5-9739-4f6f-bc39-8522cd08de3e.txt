@@ -1,0 +1,4 @@
+test
+myAKSResourceGroup
+MC_myAKSResourceGroup_myAKSCluster_eastus
+NetworkWatcherRG

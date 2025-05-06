@@ -1,0 +1,15 @@
+CONNECTIVITY TEST: AKS:myAKSCluster to Custom:
+DNS LOOKUP:
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+Server:		10.0.0.10
+Address:	10.0.0.10#53
+
+Non-authoritative answer:
+Name:	goog.com
+Address: 34.214.54.237
+Name:	goog.com
+Address: 54.68.241.132
+

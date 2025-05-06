@@ -1,0 +1,6 @@
+nc: connect to goog.com (54.68.241.132) port 453 (tcp) timed out: Operation now in progress
+nc: connect to goog.com (34.214.54.237) port 453 (tcp) timed out: Operation now in progress
+
+real	0m20.015s
+user	0m0.000s
+sys	0m0.002s

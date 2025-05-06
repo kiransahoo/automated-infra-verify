@@ -1,0 +1,5 @@
+CURL TIMING:
+DNS Resolution: 0.007647s
+TCP Connection: 0.010725s
+TLS Handshake: 0.075019s
+Total time: 0.084307s

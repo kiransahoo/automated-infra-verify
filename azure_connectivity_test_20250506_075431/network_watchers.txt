@@ -1,0 +1,1 @@
+/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastus

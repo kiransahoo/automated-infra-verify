@@ -133,6 +133,9 @@ test_connectivity() {
     
     local latency_info=""
     if [ "$avg_latency" != "N/A" ]; then
+        if [ -n "$probes_failed" ] && [ "$probes_failed" != "null" ]; then
+        probes_succeeded=$((probes_sent - probes_failed))
+        fi
         latency_info=" (Avg: ${avg_latency}ms, Min: ${min_latency}ms, Max: ${max_latency}ms, $probes_succeeded/$probes_sent probes succeeded)"
     fi
     
@@ -386,43 +389,6 @@ test_vm_to_onprem_connectivity() {
     fi
 }
 
-# Function to test custom endpoint connectivity
-# test_custom_endpoint_connectivity() {
-#     log "Testing connectivity to custom endpoints..."
-    
-#     if [ ${#CUSTOM_ENDPOINTS[@]} -eq 0 ]; then
-#         log_warning "No custom endpoints specified, skipping custom endpoint connectivity tests."
-#         return
-#     fi
-    
-#     # Use VMs as source resources
-#     if [ -s "${OUTPUT_DIR}/vms.txt" ]; then
-#         # Limit to first 3 VMs
-#         head -3 "${OUTPUT_DIR}/vms.txt" > "${OUTPUT_DIR}/vm_custom_sample.txt"
-        
-#         while IFS='|' read -r vm_sub vm_rg vm_name vm_id vm_private_ips vm_public_ips vm_vnet vm_subnet vm_os_type; do
-#             # Skip if VM ID is missing
-#             [ -z "$vm_id" ] && continue
-            
-#             # For each custom endpoint
-#             for custom_endpoint in "${CUSTOM_ENDPOINTS[@]}"; do
-#                 # Parse endpoint components
-#                 IFS=':' read -r endpoint_host endpoint_port endpoint_desc endpoint_rg endpoint_sub <<< "$custom_endpoint"
-                
-#                 # Skip if host or port is missing
-#                 [ -z "$endpoint_host" ] || [ -z "$endpoint_port" ] && continue
-                
-#                 # Set default description if not provided
-#                 [ -z "$endpoint_desc" ] && endpoint_desc="$endpoint_host"
-                
-#                 # Test connectivity
-#                 test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
-#             done
-#         done < "${OUTPUT_DIR}/vm_custom_sample.txt"
-#     else
-#         log_warning "No VMs found to use as source for custom endpoint tests."
-#     fi
-# }
 
 # Function to test custom endpoint connectivity
 test_custom_endpoint_connectivity() {
@@ -501,7 +467,7 @@ test_custom_endpoint_connectivity() {
                         echo "$test_id" >> "$EXECUTED_TESTS_FILE"
                         
                         # Test connectivity
-                        test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
+                        test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_host" "${vm_name}_to_${endpoint_desc}"
                     else
                         log "Skipping duplicate test: $test_id"
                     fi
@@ -525,7 +491,7 @@ test_custom_endpoint_connectivity() {
                             echo "$test_id" >> "$EXECUTED_TESTS_FILE"
                             
                             # Test connectivity
-                            test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_desc" "${vm_name}_to_${endpoint_desc}"
+                            test_connectivity "$vm_id" "$endpoint_host" "$endpoint_port" "Tcp" "VM:$vm_name" "Custom:$endpoint_host" "${vm_name}_to_${endpoint_desc}"
                         else
                             log "Skipping duplicate test: $test_id"
                         fi
@@ -808,12 +774,40 @@ precheck_aks_connectivity() {
 test_aks_to_custom_connectivity() {
     log "Testing AKS to Custom Endpoints connectivity..."
     
-    if [ ! -s "${OUTPUT_DIR}/aks_clusters.txt" ] || [ ! -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
-        log_warning "Either AKS clusters or Custom Endpoints not found, skipping AKS to Custom Endpoints connectivity tests."
+    # Check if we have AKS clusters and custom endpoints
+    if [ ! -s "${OUTPUT_DIR}/aks_clusters.txt" ]; then
+        log_warning "No AKS clusters found, skipping AKS to Custom Endpoints connectivity tests."
         return
     fi
     
-    # For each AKS cluster, test connectivity to each Custom Endpoint
+    if [ ${#CUSTOM_ENDPOINTS[@]} -eq 0 ] && [ ! -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
+        log_warning "No custom endpoints specified, skipping AKS to Custom Endpoints connectivity tests."
+        return
+    fi
+    
+    # Initialize executed tests file if it doesn't exist
+    EXECUTED_TESTS_FILE="${OUTPUT_DIR}/executed_tests.txt"
+    touch "$EXECUTED_TESTS_FILE"
+    
+    # Filter AKS clusters if a specific one was requested
+    if [[ "$source" != "all" ]]; then
+        # If a specific AKS cluster was requested, only use that one
+        grep "|${source}|" "${OUTPUT_DIR}/aks_clusters.txt" > "${OUTPUT_DIR}/aks_clusters_filtered.txt"
+        
+        # If the grep failed, log a warning and return
+        if [ ! -s "${OUTPUT_DIR}/aks_clusters_filtered.txt" ]; then
+            log_warning "Specified AKS cluster '$source' not found. Skipping custom endpoint connectivity tests."
+            return
+        fi
+        
+        # Use the filtered file for testing
+        AKS_CLUSTERS_FILE="${OUTPUT_DIR}/aks_clusters_filtered.txt"
+    else
+        # Use all AKS clusters
+        AKS_CLUSTERS_FILE="${OUTPUT_DIR}/aks_clusters.txt"
+    fi
+    
+    # For each AKS cluster, test connectivity
     while IFS='|' read -r aks_sub aks_rg aks_name aks_node_rg aks_fqdn aks_api_server aks_network_plugin; do
         # Get credentials for the cluster
         log "Getting credentials for AKS cluster $aks_name"
@@ -838,69 +832,153 @@ test_aks_to_custom_connectivity() {
             kubectl wait --for=condition=Ready pod/$POD_NAME --timeout=120s > "${OUTPUT_DIR}/pod_wait_${aks_name}.log" 2> "${OUTPUT_DIR}/pod_wait_${aks_name}.err"
         fi
         
-        # For each Custom Endpoint
-        while IFS=':' read -r custom_hostname custom_port custom_desc rest; do
-            # Skip if hostname or port is missing
-            [ -z "$custom_hostname" ] || [ -z "$custom_port" ] && continue
-            
-            # Use hostname as description if not provided
-            [ -z "$custom_desc" ] && custom_desc="$custom_hostname"
+        # Check if a specific destination was requested
+        if [[ "$destination" != "all" && "$destination" == *":"* ]]; then
+            # Parse the specific destination
+            custom_hostname=$(echo "$destination" | cut -d ':' -f1)
+            custom_port=$(echo "$destination" | cut -d ':' -f2)
+            custom_desc=$(echo "$destination" | cut -d ':' -f3 || echo "$custom_hostname")
             
             # Create a sanitized name for files
             custom_name=$(echo "$custom_hostname" | tr -c '[:alnum:]' '_' | cut -c 1-30)
             
-            log "[RUNNING] Connectivity - AKS:$aks_name to Custom:$custom_desc ($custom_hostname:$custom_port)"
+            # Create unique test ID for deduplication
+            test_id="AKS:${aks_name}_to_Custom:${custom_hostname}:${custom_port}"
             
-            # Test connectivity with DNS lookup first (continue even if it fails)
-            kubectl exec $POD_NAME -- bash -c "echo 'CONNECTIVITY TEST: AKS:$aks_name to Custom:$custom_desc' && \
-                echo 'DNS LOOKUP:' && (nslookup $custom_hostname || echo 'DNS resolution failed, trying direct connection tests')" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.err"
-            
-            # Try curl for timing data if available, otherwise use nc
-            kubectl exec $POD_NAME -- bash -c "if command -v curl &> /dev/null && [ $custom_port -eq 80 -o $custom_port -eq 443 ]; then \
-                protocol='http'; \
-                [ $custom_port -eq 443 ] && protocol='https'; \
-                echo 'CURL TIMING:' && \
-                curl -w 'DNS Resolution: %{time_namelookup}s\nTCP Connection: %{time_connect}s\nTLS Handshake: %{time_appconnect}s\nTotal time: %{time_total}s\n' \
-                -o /dev/null -s \${protocol}://$custom_hostname:$custom_port; \
-            else \
-                echo 'NETCAT CONNECTION TEST ($custom_port):' && \
-                (time nc -zv -w 10 $custom_hostname $custom_port) || echo 'Connection failed'; \
-            fi" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.err"
-            
-            # Combine logs
-            cat "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"
-            
-            # Check for success with multiple patterns
-            CONNECTION_SUCCESS=false
-            
-            # First check for curl's detailed timing
-            if grep -q "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
-                CONNECTION_SUCCESS=true
-                CONNECTION_TIME=$(grep "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
-                TOTAL_TIME=$(grep "Total time:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
+            # Check if this test has already been executed
+            if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                # Mark as executed
+                echo "$test_id" >> "$EXECUTED_TESTS_FILE"
                 
-                log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful (Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s)"
-                echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS - Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s" >> "$SUMMARY_FILE"
-            
-            # Then check for netcat success patterns
-            elif grep -q "Connection to.*$custom_port.*succeeded\|open\|connected" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
-                CONNECTION_SUCCESS=true
+                log "[RUNNING] Connectivity - AKS:$aks_name to Custom:$custom_desc ($custom_hostname:$custom_port)"
                 
-                # Try to extract timing from time command
-                if grep -q "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
-                    CONNECTION_TIME=$(grep "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | head -1 | awk '{print $2}')
-                    log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful (Connection Time: ${CONNECTION_TIME})"
-                    echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS - Connection Time: ${CONNECTION_TIME}" >> "$SUMMARY_FILE"
-                else
-                    log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful"
-                    echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS" >> "$SUMMARY_FILE"
-                fi
+                # Test connectivity with DNS lookup first (continue even if it fails)
+                kubectl exec $POD_NAME -- bash -c "echo 'CONNECTIVITY TEST: AKS:$aks_name to Custom:$custom_desc' && \
+                    echo 'DNS LOOKUP:' && (nslookup $custom_hostname || echo 'DNS resolution failed, trying direct connection tests')" \
+                    > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.err"
+                
+                # Try curl for timing data if available, otherwise use nc
+                kubectl exec $POD_NAME -- bash -c "if command -v curl &> /dev/null && [ $custom_port -eq 80 -o $custom_port -eq 443 ]; then \
+                    protocol='http'; \
+                    [ $custom_port -eq 443 ] && protocol='https'; \
+                    echo 'CURL TIMING:' && \
+                    curl -w 'DNS Resolution: %{time_namelookup}s\nTCP Connection: %{time_connect}s\nTLS Handshake: %{time_appconnect}s\nTotal time: %{time_total}s\n' \
+                    -o /dev/null -s \${protocol}://$custom_hostname:$custom_port; \
+                else \
+                    echo 'NETCAT CONNECTION TEST ($custom_port):' && \
+                    (time nc -zv -w 10 $custom_hostname $custom_port) || echo 'Connection failed'; \
+                fi" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.err"
+                
+                # Combine logs
+                cat "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"
+                
+                # Process the result
+                process_aks_custom_result "$aks_name" "$custom_hostname" "$custom_port" "$custom_desc" "$custom_name"
             else
-                log_error "Connectivity - AKS:$aks_name to Custom:$custom_desc failed"
-                echo "AKS:$aks_name to Custom:$custom_desc - FAILED" >> "$SUMMARY_FILE"
+                log "Skipping duplicate test: $test_id"
+            fi
+        else
+            # For "all" destination - test all endpoints in custom_endpoints.txt
+            if [ -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
+                while IFS=':' read -r custom_hostname custom_port custom_desc rest; do
+                    # Skip if hostname or port is missing
+                    [ -z "$custom_hostname" ] || [ -z "$custom_port" ] && continue
+                    
+                    # Use hostname as description if not provided
+                    [ -z "$custom_desc" ] && custom_desc="$custom_hostname"
+                    
+                    # Create a sanitized name for files
+                    custom_name=$(echo "$custom_hostname" | tr -c '[:alnum:]' '_' | cut -c 1-30)
+                    
+                    # Create unique test ID for deduplication
+                    test_id="AKS:${aks_name}_to_Custom:${custom_hostname}:${custom_port}"
+                    
+                    # Check if this test has already been executed
+                    if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                        # Mark as executed
+                        echo "$test_id" >> "$EXECUTED_TESTS_FILE"
+                        
+                        log "[RUNNING] Connectivity - AKS:$aks_name to Custom:$custom_desc ($custom_hostname:$custom_port)"
+                        
+                        # Test connectivity with DNS lookup first (continue even if it fails)
+                        kubectl exec $POD_NAME -- bash -c "echo 'CONNECTIVITY TEST: AKS:$aks_name to Custom:$custom_desc' && \
+                            echo 'DNS LOOKUP:' && (nslookup $custom_hostname || echo 'DNS resolution failed, trying direct connection tests')" \
+                            > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.err"
+                        
+                        # Try curl for timing data if available, otherwise use nc
+                        kubectl exec $POD_NAME -- bash -c "if command -v curl &> /dev/null && [ $custom_port -eq 80 -o $custom_port -eq 443 ]; then \
+                            protocol='http'; \
+                            [ $custom_port -eq 443 ] && protocol='https'; \
+                            echo 'CURL TIMING:' && \
+                            curl -w 'DNS Resolution: %{time_namelookup}s\nTCP Connection: %{time_connect}s\nTLS Handshake: %{time_appconnect}s\nTotal time: %{time_total}s\n' \
+                            -o /dev/null -s \${protocol}://$custom_hostname:$custom_port; \
+                        else \
+                            echo 'NETCAT CONNECTION TEST ($custom_port):' && \
+                            (time nc -zv -w 10 $custom_hostname $custom_port) || echo 'Connection failed'; \
+                        fi" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.err"
+                        
+                        # Combine logs
+                        cat "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"
+                        
+                        # Process the result
+                        process_aks_custom_result "$aks_name" "$custom_hostname" "$custom_port" "$custom_desc" "$custom_name"
+                    else
+                        log "Skipping duplicate test: $test_id"
+                    fi
+                done < "${OUTPUT_DIR}/custom_endpoints.txt"
             fi
             
-        done < "${OUTPUT_DIR}/custom_endpoints.txt"
+            # Also test CUSTOM_ENDPOINTS array
+            for custom_endpoint in "${CUSTOM_ENDPOINTS[@]}"; do
+                # Parse endpoint components
+                IFS=':' read -r custom_hostname custom_port custom_desc custom_rg custom_sub <<< "$custom_endpoint"
+                
+                # Skip if hostname or port is missing
+                [ -z "$custom_hostname" ] || [ -z "$custom_port" ] && continue
+                
+                # Use hostname as description if not provided
+                [ -z "$custom_desc" ] && custom_desc="$custom_hostname"
+                
+                # Create a sanitized name for files
+                custom_name=$(echo "$custom_hostname" | tr -c '[:alnum:]' '_' | cut -c 1-30)
+                
+                # Create unique test ID for deduplication
+                test_id="AKS:${aks_name}_to_Custom:${custom_hostname}:${custom_port}"
+                
+                # Check if this test has already been executed
+                if ! grep -q "^$test_id$" "$EXECUTED_TESTS_FILE"; then
+                    # Mark as executed
+                    echo "$test_id" >> "$EXECUTED_TESTS_FILE"
+                    
+                    log "[RUNNING] Connectivity - AKS:$aks_name to Custom:$custom_desc ($custom_hostname:$custom_port)"
+                    
+                    # Test connectivity with DNS lookup first (continue even if it fails)
+                    kubectl exec $POD_NAME -- bash -c "echo 'CONNECTIVITY TEST: AKS:$aks_name to Custom:$custom_desc' && \
+                        echo 'DNS LOOKUP:' && (nslookup $custom_hostname || echo 'DNS resolution failed, trying direct connection tests')" \
+                        > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.err"
+                    
+                    # Try curl for timing data if available, otherwise use nc
+                    kubectl exec $POD_NAME -- bash -c "if command -v curl &> /dev/null && [ $custom_port -eq 80 -o $custom_port -eq 443 ]; then \
+                        protocol='http'; \
+                        [ $custom_port -eq 443 ] && protocol='https'; \
+                        echo 'CURL TIMING:' && \
+                        curl -w 'DNS Resolution: %{time_namelookup}s\nTCP Connection: %{time_connect}s\nTLS Handshake: %{time_appconnect}s\nTotal time: %{time_total}s\n' \
+                        -o /dev/null -s \${protocol}://$custom_hostname:$custom_port; \
+                    else \
+                        echo 'NETCAT CONNECTION TEST ($custom_port):' && \
+                        (time nc -zv -w 10 $custom_hostname $custom_port) || echo 'Connection failed'; \
+                    fi" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.err"
+                    
+                    # Combine logs
+                    cat "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"
+                    
+                    # Process the result
+                    process_aks_custom_result "$aks_name" "$custom_hostname" "$custom_port" "$custom_desc" "$custom_name"
+                else
+                    log "Skipping duplicate test: $test_id"
+                fi
+            done
+        fi
         
         # Clean up the test pod
         if [[ "$SKIP_CLEANUP" != "true" ]]; then
@@ -914,8 +992,165 @@ test_aks_to_custom_connectivity() {
                 sleep 3
             fi
         fi
-    done < "${OUTPUT_DIR}/aks_clusters.txt"
+    done < "$AKS_CLUSTERS_FILE"
 }
+
+# Helper function to process AKS to custom endpoint test results
+process_aks_custom_result() {
+    local aks_name="$1"
+    local custom_hostname="$2"
+    local custom_port="$3"
+    local custom_desc="$4"
+    local custom_name="$5"
+    
+    # Check for success with multiple patterns
+    CONNECTION_SUCCESS=false
+    
+    # First check for curl's detailed timing
+    if grep -q "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+        # Extract connection time and verify it's not zero (which would indicate a false positive)
+        CONNECTION_TIME=$(grep "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
+        TOTAL_TIME=$(grep "Total time:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
+        
+        # Only consider it a success if connection time is non-zero
+        # Also check for HTTP errors in the log
+        if (( $(echo "$CONNECTION_TIME > 0.0" | bc -l) )) && ! grep -q "Connection refused\|Could not resolve host\|Failed to connect\|Connection timed out" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+            CONNECTION_SUCCESS=true
+            log_success "Connectivity - AKS:$aks_name to Custom:$custom_hostname is successful (Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s)"
+            echo "AKS:$aks_name to Custom:$custom_hostname - SUCCESS - Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s" >> "$SUMMARY_FILE"
+        else
+            log_error "Connectivity - AKS:$aks_name to Custom:$custom_hostname failed (Suspicious zero connection time or error detected)"
+            echo "AKS:$aks_name to Custom:$custom_hostname - FAILED - Suspicious connection or error detected" >> "$SUMMARY_FILE"
+        fi
+    # Then check for netcat success patterns
+    elif grep -q "Connection to.*$custom_port.*succeeded\|open\|connected" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+        CONNECTION_SUCCESS=true
+        
+        # Try to extract timing from time command
+        if grep -q "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+            CONNECTION_TIME=$(grep "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | head -1 | awk '{print $2}')
+            log_success "Connectivity - AKS:$aks_name to Custom:$custom_hostname is successful (Connection Time: ${CONNECTION_TIME})"
+            echo "AKS:$aks_name to Custom:$custom_hostname - SUCCESS - Connection Time: ${CONNECTION_TIME}" >> "$SUMMARY_FILE"
+        else
+            log_success "Connectivity - AKS:$aks_name to Custom:$custom_hostname is successful"
+            echo "AKS:$aks_name to Custom:$custom_hostname - SUCCESS" >> "$SUMMARY_FILE"
+        fi
+    else
+        log_error "Connectivity - AKS:$aks_name to Custom:$custom_hostname failed"
+        echo "AKS:$aks_name to Custom:$custom_hostname - FAILED" >> "$SUMMARY_FILE"
+    fi
+}
+# test_aks_to_custom_connectivity() {
+#     log "Testing AKS to Custom Endpoints connectivity..."
+    
+#     if [ ! -s "${OUTPUT_DIR}/aks_clusters.txt" ] || [ ! -s "${OUTPUT_DIR}/custom_endpoints.txt" ]; then
+#         log_warning "Either AKS clusters or Custom Endpoints not found, skipping AKS to Custom Endpoints connectivity tests."
+#         return
+#     fi
+    
+#     # For each AKS cluster, test connectivity to each Custom Endpoint
+#     while IFS='|' read -r aks_sub aks_rg aks_name aks_node_rg aks_fqdn aks_api_server aks_network_plugin; do
+#         # Get credentials for the cluster
+#         log "Getting credentials for AKS cluster $aks_name"
+#         run_az_command "az account set --subscription \"$aks_sub\"" "${OUTPUT_DIR}/aks_custom_account_set_${aks_sub}.log" "${OUTPUT_DIR}/aks_custom_account_set_${aks_sub}.err" "$DISCOVERY_TIMEOUT" "Setting subscription context for AKS to Custom Endpoints tests ($aks_sub)"
+        
+#         run_az_command "az aks get-credentials --resource-group \"$aks_rg\" --name \"$aks_name\" --overwrite-existing" "${OUTPUT_DIR}/aks_custom_credentials_${aks_sub}_${aks_name}.log" "${OUTPUT_DIR}/aks_custom_credentials_${aks_sub}_${aks_name}.err" "$DISCOVERY_TIMEOUT" "Getting AKS credentials for $aks_name"
+        
+#         # Deploy test pod if it doesn't exist
+#         POD_NAME="connectivity-test-$(echo $aks_name | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c 1-20)"
+        
+#         # Check if pod exists
+#         POD_EXISTS=$(kubectl get pod $POD_NAME -o name 2>/dev/null)
+        
+#         if [ -z "$POD_EXISTS" ]; then
+#             kubectl delete pod $POD_NAME --force --grace-period=0 --ignore-not-found=true --wait=false > /dev/null 2>&1
+#             sleep 5  # Give a moment for deletion to process
+            
+#             log "Creating test pod in AKS cluster $aks_name using pre-built image: $TEST_POD_IMAGE"
+#             kubectl run $POD_NAME --image=$TEST_POD_IMAGE > "${OUTPUT_DIR}/pod_create_${aks_name}.log" 2> "${OUTPUT_DIR}/pod_create_${aks_name}.err"
+            
+#             # Wait for pod to be ready
+#             kubectl wait --for=condition=Ready pod/$POD_NAME --timeout=120s > "${OUTPUT_DIR}/pod_wait_${aks_name}.log" 2> "${OUTPUT_DIR}/pod_wait_${aks_name}.err"
+#         fi
+        
+#         # For each Custom Endpoint
+#         while IFS=':' read -r custom_hostname custom_port custom_desc rest; do
+#             # Skip if hostname or port is missing
+#             [ -z "$custom_hostname" ] || [ -z "$custom_port" ] && continue
+            
+#             # Use hostname as description if not provided
+#             [ -z "$custom_desc" ] && custom_desc="$custom_hostname"
+            
+#             # Create a sanitized name for files
+#             custom_name=$(echo "$custom_hostname" | tr -c '[:alnum:]' '_' | cut -c 1-30)
+            
+#             log "[RUNNING] Connectivity - AKS:$aks_name to Custom:$custom_desc ($custom_hostname:$custom_port)"
+            
+#             # Test connectivity with DNS lookup first (continue even if it fails)
+#             kubectl exec $POD_NAME -- bash -c "echo 'CONNECTIVITY TEST: AKS:$aks_name to Custom:$custom_desc' && \
+#                 echo 'DNS LOOKUP:' && (nslookup $custom_hostname || echo 'DNS resolution failed, trying direct connection tests')" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.err"
+            
+#             # Try curl for timing data if available, otherwise use nc
+#             kubectl exec $POD_NAME -- bash -c "if command -v curl &> /dev/null && [ $custom_port -eq 80 -o $custom_port -eq 443 ]; then \
+#                 protocol='http'; \
+#                 [ $custom_port -eq 443 ] && protocol='https'; \
+#                 echo 'CURL TIMING:' && \
+#                 curl -w 'DNS Resolution: %{time_namelookup}s\nTCP Connection: %{time_connect}s\nTLS Handshake: %{time_appconnect}s\nTotal time: %{time_total}s\n' \
+#                 -o /dev/null -s \${protocol}://$custom_hostname:$custom_port; \
+#             else \
+#                 echo 'NETCAT CONNECTION TEST ($custom_port):' && \
+#                 (time nc -zv -w 10 $custom_hostname $custom_port) || echo 'Connection failed'; \
+#             fi" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" 2> "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.err"
+            
+#             # Combine logs
+#             cat "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_dns.log" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}_port.log" > "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"
+            
+#             # Check for success with multiple patterns
+#             CONNECTION_SUCCESS=false
+            
+#             # First check for curl's detailed timing
+#             if grep -q "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+#                 CONNECTION_SUCCESS=true
+#                 CONNECTION_TIME=$(grep "TCP Connection:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
+#                 TOTAL_TIME=$(grep "Total time:" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | awk '{print $3}' | sed 's/s$//')
+                
+#                 log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful (Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s)"
+#                 echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS - Connection: ${CONNECTION_TIME}s, Total: ${TOTAL_TIME}s" >> "$SUMMARY_FILE"
+            
+#             # Then check for netcat success patterns
+#             elif grep -q "Connection to.*$custom_port.*succeeded\|open\|connected" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+#                 CONNECTION_SUCCESS=true
+                
+#                 # Try to extract timing from time command
+#                 if grep -q "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log"; then
+#                     CONNECTION_TIME=$(grep "real" "${OUTPUT_DIR}/connectivity_${aks_name}_to_custom_${custom_name}.log" | head -1 | awk '{print $2}')
+#                     log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful (Connection Time: ${CONNECTION_TIME})"
+#                     echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS - Connection Time: ${CONNECTION_TIME}" >> "$SUMMARY_FILE"
+#                 else
+#                     log_success "Connectivity - AKS:$aks_name to Custom:$custom_desc is successful"
+#                     echo "AKS:$aks_name to Custom:$custom_desc - SUCCESS" >> "$SUMMARY_FILE"
+#                 fi
+#             else
+#                 log_error "Connectivity - AKS:$aks_name to Custom:$custom_desc failed"
+#                 echo "AKS:$aks_name to Custom:$custom_desc - FAILED" >> "$SUMMARY_FILE"
+#             fi
+            
+#         done < "${OUTPUT_DIR}/custom_endpoints.txt"
+        
+#         # Clean up the test pod
+#         if [[ "$SKIP_CLEANUP" != "true" ]]; then
+#             log "Deleting test pod $POD_NAME from AKS cluster $aks_name"
+#             kubectl delete pod $POD_NAME --wait=true --timeout=30s > "${OUTPUT_DIR}/pod_delete_${aks_name}.log" 2> "${OUTPUT_DIR}/pod_delete_${aks_name}.err"
+#             sleep 5
+#             kubectl get pod $POD_NAME --no-headers --ignore-not-found > /dev/null 2>&1
+#             if [ $? -eq 0 ]; then
+#                 log_warning "Pod $POD_NAME still exists after deletion attempt, forcing deletion"
+#                 kubectl delete pod $POD_NAME --force --grace-period=0 > /dev/null 2>&1
+#                 sleep 3
+#             fi
+#         fi
+#     done < "${OUTPUT_DIR}/aks_clusters.txt"
+# }
 test_aks_to_storage_connectivity() {
     log "Testing AKS to Storage Account connectivity..."
     

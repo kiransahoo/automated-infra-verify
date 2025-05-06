@@ -1,0 +1,1 @@
+da297dc5-9739-4f6f-bc39-8522cd08de3e|myAKSResourceGroup|teststorage3847|/subscriptions/da297dc5-9739-4f6f-bc39-8522cd08de3e/resourceGroups/myAKSResourceGroup/providers/Microsoft.Storage/storageAccounts/teststorage3847|eastus|false|false|teststorage3847.blob.core.windows.net

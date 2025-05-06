@@ -1,0 +1,9 @@
+[
+  {
+    "apiServerAddress": null,
+    "fqdn": "myaksclust-myaksresourcegro-da297d-0uoihiwr.hcp.eastus.azmk8s.io",
+    "name": "myAKSCluster",
+    "networkPlugin": "kubenet",
+    "nodeResourceGroup": "MC_myAKSResourceGroup_myAKSCluster_eastus"
+  }
+]

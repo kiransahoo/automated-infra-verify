@@ -1,0 +1,3 @@
+MyResourceGroup
+ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed
+ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed

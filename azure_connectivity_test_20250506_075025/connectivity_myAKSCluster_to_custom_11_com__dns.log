@@ -1,0 +1,12 @@
+CONNECTIVITY TEST: AKS:myAKSCluster to Custom:11.com
+DNS LOOKUP:
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+Server:		10.0.0.10
+Address:	10.0.0.10#53
+
+Non-authoritative answer:
+*** Can't find 11.com: No answer
+

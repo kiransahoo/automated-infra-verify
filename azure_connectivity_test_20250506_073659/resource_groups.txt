@@ -1,0 +1,7 @@
+da297dc5-9739-4f6f-bc39-8522cd08de3e|test|Azure subscription 1
+da297dc5-9739-4f6f-bc39-8522cd08de3e|myAKSResourceGroup|Azure subscription 1
+da297dc5-9739-4f6f-bc39-8522cd08de3e|MC_myAKSResourceGroup_myAKSCluster_eastus|Azure subscription 1
+da297dc5-9739-4f6f-bc39-8522cd08de3e|NetworkWatcherRG|Azure subscription 1
+0c2ede38-ff44-4b85-8ff7-a6c43addb095|MyResourceGroup|test
+0c2ede38-ff44-4b85-8ff7-a6c43addb095|ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed|test
+0c2ede38-ff44-4b85-8ff7-a6c43addb095|ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed|test

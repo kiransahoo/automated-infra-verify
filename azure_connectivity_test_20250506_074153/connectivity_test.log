@@ -1,0 +1,168 @@
+2025-05-06 07:41:53 [INFO] Starting Azure Infra verification at Tue May  6 07:41:53 EDT 2025
+2025-05-06 07:41:53 [INFO] Checking prerequisites...
+2025-05-06 07:41:53 [SUCCESS] [0;32mjq is available and will be used for JSON processing.[0m
+2025-05-06 07:41:53 [SUCCESS] [0;32mPrerequisites check completed.[0m
+2025-05-06 07:41:53 [INFO] Checking Azure CLI authentication...
+2025-05-06 07:41:54 [SUCCESS] [0;32mAlready authenticated to Azure as 'Azure subscription 1'[0m
+2025-05-06 07:41:55 [INFO] Checking Excel processing tools...
+2025-05-06 07:41:55 [INFO] Extracting endpoints from Excel file: newinfra.csv
+2025-05-06 07:41:55 [ERROR] [0;31mFailed to extract endpoints from Excel file[0m
+2025-05-06 07:41:55 [INFO] [1mStarting resource discovery...[0m
+2025-05-06 07:41:55 [INFO] Discovering Azure subscriptions (with 60-second timeout)...
+2025-05-06 07:41:55 [INFO] Discovering all accessible subscriptions...
+2025-05-06 07:41:55 [INFO] Valid JSON in subscriptions.json
+2025-05-06 07:41:55 [SUCCESS] [0;32mDiscovered 2 accessible subscriptions.[0m
+2025-05-06 07:41:55 [INFO] Discovering resource groups (with 60-second timeout)...
+2025-05-06 07:41:55 [INFO] Processing 2 subscriptions from subscriptions.txt
+2025-05-06 07:41:55 [INFO] Processing subscription: da297dc5-9739-4f6f-bc39-8522cd08de3e
+2025-05-06 07:41:56 [WARNING] [0;33mSetting subscription context for da297dc5-9739-4f6f-bc39-8522cd08de3e returned empty output[0m
+2025-05-06 07:41:56 [INFO] Subscription name resolved as: Azure subscription 1
+2025-05-06 07:41:56 [INFO] Retrieving all resource groups for subscription da297dc5-9739-4f6f-bc39-8522cd08de3e
+2025-05-06 07:41:56 [INFO] Found 4 resource groups in subscription da297dc5-9739-4f6f-bc39-8522cd08de3e using TSV format
+2025-05-06 07:41:56 [INFO] Added resource group: test
+2025-05-06 07:41:56 [INFO] Added resource group: myAKSResourceGroup
+2025-05-06 07:41:56 [INFO] Added resource group: MC_myAKSResourceGroup_myAKSCluster_eastus
+2025-05-06 07:41:56 [INFO] Added resource group: NetworkWatcherRG
+2025-05-06 07:41:56 [INFO] Processing subscription: 0c2ede38-ff44-4b85-8ff7-a6c43addb095
+2025-05-06 07:41:56 [WARNING] [0;33mSetting subscription context for 0c2ede38-ff44-4b85-8ff7-a6c43addb095 returned empty output[0m
+2025-05-06 07:41:56 [INFO] Subscription name resolved as: test
+2025-05-06 07:41:56 [INFO] Retrieving all resource groups for subscription 0c2ede38-ff44-4b85-8ff7-a6c43addb095
+2025-05-06 07:41:57 [INFO] Found 3 resource groups in subscription 0c2ede38-ff44-4b85-8ff7-a6c43addb095 using TSV format
+2025-05-06 07:41:57 [INFO] Added resource group: MyResourceGroup
+2025-05-06 07:41:57 [INFO] Added resource group: ai_myappinsights_04774742-d396-4d56-bdf3-6c25a09fd5d1_managed
+2025-05-06 07:41:57 [INFO] Added resource group: ai_myappinsights_dba0d1ed-d6ae-4ad7-b6e1-adb9d29a98fc_managed
+2025-05-06 07:41:57 [SUCCESS] [0;32mDiscovered 7 accessible resource groups.[0m
+2025-05-06 07:41:57 [INFO] Discovering virtual machines...
+2025-05-06 07:41:57 [WARNING] [0;33mSetting subscription context for VM discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:41:58 [WARNING] [0;33mSetting subscription context for VM discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:41:59 [WARNING] [0;33mSetting subscription context for VM discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:00 [WARNING] [0;33mSetting subscription context for VM discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:01 [WARNING] [0;33mSetting subscription context for VM discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:02 [WARNING] [0;33mSetting subscription context for VM discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:02 [WARNING] [0;33mSetting subscription context for VM discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:03 [WARNING] [0;33mNo virtual machines found.[0m
+2025-05-06 07:42:03 [INFO] Discovering AKS clusters...
+2025-05-06 07:42:03 [WARNING] [0;33mSetting subscription context for AKS discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:04 [WARNING] [0;33mSetting subscription context for AKS discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:05 [INFO] Found AKS cluster: myAKSCluster in resource group myAKSResourceGroup
+2025-05-06 07:42:05 [WARNING] [0;33mSetting subscription context for AKS discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:06 [WARNING] [0;33mSetting subscription context for AKS discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:07 [WARNING] [0;33mSetting subscription context for AKS discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:07 [WARNING] [0;33mSetting subscription context for AKS discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:08 [WARNING] [0;33mSetting subscription context for AKS discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:08 [SUCCESS] [0;32mDiscovered 1 AKS clusters.[0m
+2025-05-06 07:42:08 [INFO] Discovering SQL servers...
+2025-05-06 07:42:09 [WARNING] [0;33mSetting subscription context for SQL discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:10 [WARNING] [0;33mSetting subscription context for SQL discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:10 [WARNING] [0;33mSetting subscription context for SQL discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:12 [WARNING] [0;33mSetting subscription context for SQL discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:12 [WARNING] [0;33mSetting subscription context for SQL discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:13 [WARNING] [0;33mSetting subscription context for SQL discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:14 [WARNING] [0;33mSetting subscription context for SQL discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:14 [WARNING] [0;33mNo SQL servers found.[0m
+2025-05-06 07:42:14 [INFO] Discovering storage accounts...
+2025-05-06 07:42:15 [WARNING] [0;33mSetting subscription context for storage discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:16 [WARNING] [0;33mSetting subscription context for storage discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:16 [INFO] Found storage account: teststorage3847 in resource group myAKSResourceGroup
+2025-05-06 07:42:16 [WARNING] [0;33mSetting subscription context for storage discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:17 [WARNING] [0;33mSetting subscription context for storage discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:18 [WARNING] [0;33mSetting subscription context for storage discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:19 [WARNING] [0;33mSetting subscription context for storage discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:20 [WARNING] [0;33mSetting subscription context for storage discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:20 [SUCCESS] [0;32mDiscovered 1 storage accounts.[0m
+2025-05-06 07:42:20 [INFO] Discovering Service Bus namespaces...
+2025-05-06 07:42:21 [WARNING] [0;33mSetting subscription context for Service Bus discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:21 [WARNING] [0;33mSetting subscription context for Service Bus discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:22 [INFO] Found Service Bus namespace: myservicebus25430 in resource group myAKSResourceGroup
+2025-05-06 07:42:22 [WARNING] [0;33mSetting subscription context for Service Bus discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:23 [WARNING] [0;33mSetting subscription context for Service Bus discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:24 [WARNING] [0;33mSetting subscription context for Service Bus discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:24 [WARNING] [0;33mSetting subscription context for Service Bus discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:25 [WARNING] [0;33mSetting subscription context for Service Bus discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:26 [SUCCESS] [0;32mDiscovered 1 Service Bus namespaces.[0m
+2025-05-06 07:42:26 [INFO] Discovering Event Hub namespaces...
+2025-05-06 07:42:26 [WARNING] [0;33mSetting subscription context for Event Hub discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:27 [WARNING] [0;33mSetting subscription context for Event Hub discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:28 [WARNING] [0;33mSetting subscription context for Event Hub discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:29 [WARNING] [0;33mSetting subscription context for Event Hub discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:29 [WARNING] [0;33mSetting subscription context for Event Hub discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:30 [WARNING] [0;33mSetting subscription context for Event Hub discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:31 [WARNING] [0;33mSetting subscription context for Event Hub discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:31 [WARNING] [0;33mNo Event Hub namespaces found.[0m
+2025-05-06 07:42:31 [INFO] Discovering Cosmos DB accounts...
+2025-05-06 07:42:32 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:32 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:33 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:34 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:34 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:35 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:35 [WARNING] [0;33mSetting subscription context for Cosmos DB discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:36 [WARNING] [0;33mNo Cosmos DB accounts found.[0m
+2025-05-06 07:42:36 [INFO] Discovering hybrid connectivity resources (VPN/ExpressRoute)...
+2025-05-06 07:42:36 [WARNING] [0;33mSetting subscription context for gateway discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:38 [WARNING] [0;33mSetting subscription context for gateway discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:39 [WARNING] [0;33mSetting subscription context for gateway discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:41 [WARNING] [0;33mSetting subscription context for gateway discovery (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:42 [WARNING] [0;33mSetting subscription context for gateway discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:44 [WARNING] [0;33mSetting subscription context for gateway discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:45 [WARNING] [0;33mSetting subscription context for gateway discovery (0c2ede38-ff44-4b85-8ff7-a6c43addb095) returned empty output[0m
+2025-05-06 07:42:47 [WARNING] [0;33mNo VPN gateways or ExpressRoute circuits found.[0m
+2025-05-06 07:42:47 [INFO] Detecting on-premises networks...
+2025-05-06 07:42:47 [WARNING] [0;33mNo gateways found, skipping on-premises network detection.[0m
+2025-05-06 07:42:47 [INFO] Checking Network Watcher availability...
+2025-05-06 07:42:47 [WARNING] [0;33mSetting subscription context for Network Watcher check returned empty output[0m
+2025-05-06 07:42:48 [SUCCESS] [0;32mNetwork Watcher is available.[0m
+2025-05-06 07:42:48 [INFO] Using CSV file directly: newinfra.csv
+2025-05-06 07:42:48 [INFO] CSV file content:
+2025-05-06 07:42:48 [INFO] DEBUG: test_id,source_type,source,destination_type,destination,enabled
+2025-05-06 07:42:48 [INFO] DEBUG: Test4,aks,all,custom,google.com:443,1
+2025-05-06 07:42:48 [INFO] DEBUG: Test5,aks,all,custom,11.com:443,1
+2025-05-06 07:42:48 [INFO] Processing test cases from CSV
+2025-05-06 07:42:48 [INFO] Starting CSV-based tests at Tue May  6 07:42:48 EDT 2025
+2025-05-06 07:42:48 [INFO] Using comma as field separator for CSV parsing
+2025-05-06 07:42:48 [INFO] Test values - ID: Test4, Source: aks:all, Destination: custom:google.com:443, Enabled: 1
+2025-05-06 07:42:48 [INFO] Running test: Test4 - all to google.com:443
+2025-05-06 07:42:48 [INFO] Checking if source resource exists: aks:all
+2025-05-06 07:42:48 [INFO] Warning: Source resource not found: aks:all
+2025-05-06 07:42:48 [INFO] Available resources of type aks:
+2025-05-06 07:42:48 [INFO] Adding custom endpoint to test list: google.com:443
+2025-05-06 07:42:48 [INFO] EXECUTING TEST: aks:all to custom:google.com:443
+2025-05-06 07:42:48 [INFO] Testing all AKS clusters against custom:google.com:443
+2025-05-06 07:42:48 [INFO] Testing AKS cluster: myAKSCluster against custom:google.com:443
+2025-05-06 07:42:48 [INFO] Testing AKS to Custom Endpoints connectivity...
+2025-05-06 07:42:48 [INFO] Getting credentials for AKS cluster myAKSCluster
+2025-05-06 07:42:48 [WARNING] [0;33mSetting subscription context for AKS to Custom Endpoints tests (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:42:49 [WARNING] [0;33mGetting AKS credentials for myAKSCluster returned empty output[0m
+2025-05-06 07:42:54 [INFO] Creating test pod in AKS cluster myAKSCluster using pre-built image: netsentry.azurecr.io/netsentry:latest
+2025-05-06 07:42:55 [INFO] [RUNNING] Connectivity - AKS:myAKSCluster to Custom: (google.com:443)
+2025-05-06 07:42:56 [SUCCESS] [0;32mConnectivity - AKS:myAKSCluster to Custom:google.com is successful (Connection: 0.007380s, Total: 0.077288s)[0m
+2025-05-06 07:42:56 [INFO] Deleting test pod connectivity-test-myakscluster from AKS cluster myAKSCluster
+2025-05-06 07:43:31 [WARNING] [0;33mPod connectivity-test-myakscluster still exists after deletion attempt, forcing deletion[0m
+2025-05-06 07:43:35 [INFO] TEST COMPLETED: aks:all to custom:google.com:443
+2025-05-06 07:43:35 [SUCCESS] [0;32mWildcard test Test4 completed successfully with at least one successful resource test[0m
+2025-05-06 07:43:35 [INFO] Test values - ID: Test5, Source: aks:all, Destination: custom:11.com:443, Enabled: 1
+2025-05-06 07:43:35 [INFO] Running test: Test5 - all to 11.com:443
+2025-05-06 07:43:35 [INFO] Checking if source resource exists: aks:all
+2025-05-06 07:43:35 [INFO] Warning: Source resource not found: aks:all
+2025-05-06 07:43:35 [INFO] Available resources of type aks:
+2025-05-06 07:43:35 [INFO] Adding custom endpoint to test list: 11.com:443
+2025-05-06 07:43:35 [INFO] EXECUTING TEST: aks:all to custom:11.com:443
+2025-05-06 07:43:35 [INFO] Testing all AKS clusters against custom:11.com:443
+2025-05-06 07:43:35 [INFO] Testing AKS cluster: myAKSCluster against custom:11.com:443
+2025-05-06 07:43:35 [INFO] Testing AKS to Custom Endpoints connectivity...
+2025-05-06 07:43:35 [INFO] Getting credentials for AKS cluster myAKSCluster
+2025-05-06 07:43:35 [WARNING] [0;33mSetting subscription context for AKS to Custom Endpoints tests (da297dc5-9739-4f6f-bc39-8522cd08de3e) returned empty output[0m
+2025-05-06 07:43:36 [WARNING] [0;33mGetting AKS credentials for myAKSCluster returned empty output[0m
+2025-05-06 07:43:41 [INFO] Creating test pod in AKS cluster myAKSCluster using pre-built image: netsentry.azurecr.io/netsentry:latest
+2025-05-06 07:43:43 [INFO] [RUNNING] Connectivity - AKS:myAKSCluster to Custom: (11.com:443)
+2025-05-06 07:43:43 [SUCCESS] [0;32mConnectivity - AKS:myAKSCluster to Custom:11.com is successful (Connection: 0.000000s, Total: 0.000074s)[0m
+2025-05-06 07:43:43 [INFO] Deleting test pod connectivity-test-myakscluster from AKS cluster myAKSCluster
+2025-05-06 07:44:19 [WARNING] [0;33mPod connectivity-test-myakscluster still exists after deletion attempt, forcing deletion[0m
+2025-05-06 07:44:22 [INFO] TEST COMPLETED: aks:all to custom:11.com:443
+2025-05-06 07:44:22 [SUCCESS] [0;32mWildcard test Test5 completed successfully with at least one successful resource test[0m
+2025-05-06 07:44:22 [INFO] Tests summary: Total=0, Passed=0, Failed=0, Skipped=0
+2025-05-06 07:44:22 [INFO] Generating consolidated report for all CSV-based tests
+2025-05-06 07:44:22 [INFO] Generating  report...
+2025-05-06 07:44:22 [SUCCESS] [0;32mReport generated: azure_connectivity_test_20250506_074153/connectivity_report.html[0m
+2025-05-06 07:44:22 [SUCCESS] [0;32mCompleted CSV-based tests[0m
+2025-05-06 07:44:22 [SUCCESS] [0;32mExcel-based testing completed[0m

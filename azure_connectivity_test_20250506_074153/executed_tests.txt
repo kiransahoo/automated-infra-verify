@@ -1,0 +1,4 @@
+aks:all to custom:google.com:443
+AKS:myAKSCluster_to_Custom:google.com:443
+aks:all to custom:11.com:443
+AKS:myAKSCluster_to_Custom:11.com:443

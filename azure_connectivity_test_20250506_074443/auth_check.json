@@ -1,0 +1,16 @@
+{
+  "environmentName": "AzureCloud",
+  "homeTenantId": "d8dd3c9f-a58e-42c4-b2a8-db9de3c80860",
+  "id": "da297dc5-9739-4f6f-bc39-8522cd08de3e",
+  "isDefault": true,
+  "managedByTenants": [],
+  "name": "Azure subscription 1",
+  "state": "Enabled",
+  "tenantDefaultDomain": "kiransahoogmail.onmicrosoft.com",
+  "tenantDisplayName": "Default Directory",
+  "tenantId": "d8dd3c9f-a58e-42c4-b2a8-db9de3c80860",
+  "user": {
+    "name": "kiransahoo@gmail.com",
+    "type": "user"
+  }
+}

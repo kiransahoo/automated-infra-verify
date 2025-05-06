@@ -1,0 +1,17 @@
+CONNECTIVITY TEST: AKS:myAKSCluster to Custom:
+DNS LOOKUP:
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+;; Got recursion not available from 10.0.0.10
+Server:		10.0.0.10
+Address:	10.0.0.10#53
+
+Non-authoritative answer:
+*** Can't find 11.com: No answer
+
+CURL TIMING:
+DNS Resolution: 0.000000s
+TCP Connection: 0.000000s
+TLS Handshake: 0.000000s
+Total time: 0.011590s
